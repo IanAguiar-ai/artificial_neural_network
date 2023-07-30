@@ -442,61 +442,95 @@ class Network:
         """
         return self.network[index]
 
-    
+
+def mlp(design:list, bias:bool = True):
+    network = []
+    for i in range(len(design)):
+        temp_network = []
+        for j in range(design[i]):
+            globals()[f"n{i}_{j}"] = Neuron()
+            temp_network.append(globals()[f"n{i}_{j}"])
+        network.append(temp_network)
+
+    for i in range(len(design) - 1):
+        for j in range(design[i]):
+            temp = []
+            if i+2 != len(design):
+                for k in range(bias, design[i+1], 1):
+                    temp.append(globals()[f"n{i + 1}_{k}"])
+            else:
+                for k in range(0, design[i+1], 1):
+                    temp.append(globals()[f"n{i + 1}_{k}"])
+
+            globals()[f"n{i}_{j}"].conect(temp)
+
+    return Network(network)
+
         
 #--------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     from time import time
     
-    #Inputs
-    i1 = Neuron()
-    i1.value = 1
+##    #Inputs
+##    i1 = Neuron()
+##    i1.value = 1
+##
+##    i2 = Neuron()
+##    i2.value = 1
+##
+##    i3 = Neuron()
+##    i3.value = 1
+##
+##    n11 = Neuron()
+##    n12 = Neuron()
+##    n13 = Neuron()    
+##
+##    n21 = Neuron()
+##    n22 = Neuron()
+##    n23 = Neuron()
+##
+##    o1 = Neuron()
+##    o2 = Neuron()
+##
+##    #Conecções
+##    i1.conect([n12, n13])
+##    i2.conect([n12, n13])
+##    i3.conect([n12, n13])
+##
+##    n11.conect([n22, n23])
+##    n12.conect([n22, n23])
+##    n13.conect([n22, n23])
+##
+##    n21.conect([o1,o2])
+##    n22.conect([o1,o2])
+##    n23.conect([o1,o2])
+##
+##    rede = Network([[i1,i2,i3],
+##                    [n11,n12,n13],
+##                    [n21,n22,n23],
+##                    [o1,o2]])
+##
+##    t1 = time()
+##    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],40000)
+##    t2 = time()
+##    print(t2-t1,"\n")      
+##
+##    rede == [1,0,0]
+##    rede == [1,0,1]
+##    rede == [1,1,0]
+##    rede == [1,1,1]
 
-    i2 = Neuron()
-    i2.value = 1
-
-    i3 = Neuron()
-    i3.value = 1
-
-    n11 = Neuron()
-    n12 = Neuron()
-    n13 = Neuron()    
-
-    n21 = Neuron()
-    n22 = Neuron()
-    n23 = Neuron()
-
-    o1 = Neuron()
-    o2 = Neuron()
-
-    #Conecções
-    i1.conect([n12, n13])
-    i2.conect([n12, n13])
-    i3.conect([n12, n13])
-
-    n11.conect([n22, n23])
-    n12.conect([n22, n23])
-    n13.conect([n22, n23])
-
-    n21.conect([o1,o2])
-    n22.conect([o1,o2])
-    n23.conect([o1,o2])
-
-    rede = Network([[i1,i2,i3],
-                    [n11,n12,n13],
-                    [n21,n22,n23],
-                    [o1,o2]])
-
-    t1 = time()
-    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],40000)
-    t2 = time()
-    print(t2-t1,"\n")      
-
+    rede = mlp([3,7,7,2], bias = True)
+    
+    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],10000)
+    
     rede == [1,0,0]
     rede == [1,0,1]
     rede == [1,1,0]
     rede == [1,1,1]
+
+    
     
 
         
