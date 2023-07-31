@@ -1,8 +1,0 @@
-README.md
-setup.py
-neural_network/__init__.py
-neural_network/artificialneuralnetwork.py
-neuralnetwork.egg-info/PKG-INFO
-neuralnetwork.egg-info/SOURCES.txt
-neuralnetwork.egg-info/dependency_links.txt
-neuralnetwork.egg-info/top_level.txt
