@@ -13,7 +13,7 @@ LONG_DESCRIPTION = 'Artificial neural network made from scratch'
 
 # Setting up
 setup(
-    name="neural_network",
+    name="neuralnetwork",
     version=VERSION,
     author="Ian dos Anjos",
     author_email="<iannaianjos@gmail.com>",
