@@ -1,1 +1,1 @@
-import artificial_neural_network
+import neural_network
