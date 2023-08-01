@@ -42,7 +42,7 @@ print("Accuracy: {:.2f}%".format(accuracy * 100))
 
 """## Creating and viewing the network:"""
 
-rede = nn.mlp([len(X[0]), 10, 10, 3], learn = 0.05)
+rede = nn.mlp([len(X[0]), 10, 10, 3], learn = 0.05, one_hot = True)
 
 rede
 
@@ -65,10 +65,8 @@ rede.train(X_train, list(map(one_hot, y_train)), times = 100)
 ac, total = 0, 0
 for i in range(len(X_test)):
   resp = (rede == X_test[i])
-  if resp.index(max(resp)) == y_test[i]:
+  if resp == one_hot(y_test[i]):
     ac += 1
   total += 1
 
 print(f"\n\nAcurracy {ac/total * 100}")
-
-"""In this specific case, the library made from scratch was better than the ready-made implementation."""
