@@ -11,14 +11,15 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
     """
     Cria um objeto que pode ser tanto um input quanto um neurônio quanto um output, você não precissa indentificar o que ele é.
     """
-    __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn")
-    def __init__(self, learn = 0.01):
+    __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn", "activation_function")
+    def __init__(self, learn = 0.01, activation_function = "sigmoid"):
         self.value = None #Valor principal
         self.conections = None #Conecções
         self.returns = None #Conecções de retorno
         self.weights = None #Pesos
         self.factor_correction = None #Fator de correção
         self.learn = learn
+        self.activation_function = activation_function
         
     def conect(self, conections):
         """
@@ -69,12 +70,20 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         """
         Sigmoide, serve para a ativação do objeto.
         """
-        try:
-            e = float(2.7182)
-            self.value = 1/(1 + e ** (-1*self.value))
-            #self.value = activation_C(self.value)
-        except OverflowError:
-            pass
+        if self.activation_function == "sigmoid":
+            try:
+                e = float(2.7182)
+                self.value = 1/(1 + e ** (-1*self.value))
+            except OverflowError:
+                pass
+        elif self.activation_function == "relu":
+            try:
+                self.value = max(0, self.value)
+            except OverflowError:
+                pass
+        else:
+            self.value = self.activation_function(self.value)
+        
 
     def correction(self,value):
         """
@@ -113,8 +122,8 @@ class Network:
     """
     Após definir uma lista de listas de neuronios, você pode criar uma rede, ela será responsável pelo controle geral das conecções.
     """
-    __slots__ = ("network", "value", "print_")
-    def __init__(self, network = None, value = None):
+    __slots__ = ("network", "value", "print_", "one_hot")
+    def __init__(self, network = None, value = None, one_hot = False):
         #network é um array onde cada vetor é uma camada            
         if network != None and type(network) == list:
             self.network = network
@@ -125,6 +134,7 @@ class Network:
             
         self.print_ = True
         self.value = value
+        self.one_hot = one_hot
 
     def properties(self):
         """
@@ -257,11 +267,33 @@ class Network:
             self.network[0][j].value = inputs[j]
         self.simple_run()
 
-        if self.print_:
-            print(inputs)
-            for i in range(len(self.network[-1])):
-                print("y(" + str(i) + ") = " + str(self.network[-1][i].value))
-            print("")
+        if type(self.one_hot) == bool:
+            if self.print_ and not self.one_hot:
+                print(inputs)
+                for i in range(len(self.network[-1])):
+                    print("y(" + str(i) + ") = " + str(self.network[-1][i].value))
+                print("")
+
+            if self.print_ and self.one_hot:
+                print(inputs)
+                resps = []
+                for i in range(len(self.network[-1])):
+                    resps.append(self.network[-1][i].value)
+                resps_new = [0 for i in range(len(resps))]
+                resps_new[resps.index(max(resps))] = 1
+                for i in resps_new:
+                    print("y(" + str(i) + ") = " + str(resps_new[i]))
+                print("")
+        else:
+            if self.print_:
+                print(inputs)
+                resps = [0 for i in range(len(self.network[-1]))]
+                for i in range(len(self.network[-1])):
+                    if self.network[-1][i].value >= self.one_hot:
+                        resps[i] = 1
+                for i in resps:
+                    print("y(" + str(i) + ") = " + str(i))
+                print("")
         
     def view(self):
         """
@@ -444,12 +476,12 @@ class Network:
         return self.network[index]
 
 
-def mlp(design:list, bias:bool = True, learn = 0.01):
+def mlp(design:list, bias:bool = True, one_hot = False, **args):
     network = []
     for i in range(len(design)):
         temp_network = []
         for j in range(design[i]):
-            globals()[f"n{i}_{j}"] = Neuron(learn = learn)
+            globals()[f"n{i}_{j}"] = Neuron(**args)
             temp_network.append(globals()[f"n{i}_{j}"])
         network.append(temp_network)
 
@@ -465,7 +497,7 @@ def mlp(design:list, bias:bool = True, learn = 0.01):
 
             globals()[f"n{i}_{j}"].conect(temp)
 
-    return Network(network)
+    return Network(network, one_hot = one_hot)
 
         
 #--------------------------------------------------------------------------------
@@ -522,9 +554,11 @@ if __name__ == "__main__":
 ##    rede == [1,1,0]
 ##    rede == [1,1,1]
 
-    rede = mlp([3,7,7,2], bias = True)
+    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = 0.5)
+
+    rede = mlp([3,8,8,2], bias = True)
     
-    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],10000)
+    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],1000)
     
     rede == [1,0,0]
     rede == [1,0,1]
