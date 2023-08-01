@@ -282,7 +282,7 @@ class Network:
                 resps_new = [0 for i in range(len(resps))]
                 resps_new[resps.index(max(resps))] = 1
                 for i in resps_new:
-                    print("y(" + str(i) + ") = " + str(resps_new[i]))
+                    print("y(" + str(i) + ") = " + str(i))
                 print("")
         else:
             if self.print_:
@@ -463,11 +463,31 @@ class Network:
 
         self.answer(inputs)
         resp = []
-        for i in range(10000):
-            try:
-                resp.append(self.network[-1][i].value)
-            except:
-                return resp
+##        for i in range(10000):
+##            try:
+##                resp.append(self.network[-1][i].value)
+##            except:
+##                return resp
+
+        if type(self.one_hot) == bool:
+            if self.print_ and not self.one_hot:
+                for i in range(len(self.network[-1])):
+                    resp.append(self.network[-1][i].value)
+
+            if self.print_ and self.one_hot:
+                for i in range(len(self.network[-1])):
+                    resp.append(self.network[-1][i].value)
+                resps_new = [0 for i in range(len(resp))]
+                resps_new[resp.index(max(resp))] = 1
+                resp = resps_new
+        else:
+            if self.print_:
+                resp = [0 for i in range(len(self.network[-1]))]
+                for i in range(len(self.network[-1])):
+                    if self.network[-1][i].value >= self.one_hot:
+                        resp[i] = 1
+
+        return resp
 
     def __getitem__(self, index): #rede[0] por exemplo
         """
@@ -554,7 +574,7 @@ if __name__ == "__main__":
 ##    rede == [1,1,0]
 ##    rede == [1,1,1]
 
-    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = 0.5)
+    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = True)
 
     rede = mlp([3,8,8,2], bias = True)
     
@@ -562,7 +582,7 @@ if __name__ == "__main__":
     
     rede == [1,0,0]
     rede == [1,0,1]
-    rede == [1,1,0]
+    a = rede == [1,1,0]
     rede == [1,1,1]
 
     
