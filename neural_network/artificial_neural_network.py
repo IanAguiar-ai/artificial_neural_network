@@ -11,15 +11,16 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
     """
     Cria um objeto que pode ser tanto um input quanto um neurônio quanto um output, você não precissa indentificar o que ele é.
     """
-    __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn", "activation_function")
-    def __init__(self, learn = 0.01, activation_function = "sigmoid"):
+    __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn", "activation_function", "derivative_function")
+    def __init__(self, learn = 0.01, activation_function = "sigmoid", derivative_function = None):
         self.value = None #Valor principal
         self.conections = None #Conecções
         self.returns = None #Conecções de retorno
         self.weights = None #Pesos
         self.factor_correction = None #Fator de correção
         self.learn = learn
-        self.activation_function = activation_function
+        self.activation_function = activation_function.lower()
+        self.derivative_function = derivative_function
         
     def conect(self, conections):
         """
@@ -92,7 +93,16 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         if self.returns != None:
             for neurons in self.returns: #Output
                 if neurons.returns != None: #Se ele tiver retornos e conecções (conecções ele já tem obrigatoriamente)
-                    initial_factor = (1-neurons.value)*neurons.value
+                    if self.activation_function == "sigmoid":
+                        initial_factor = (1-neurons.value)*neurons.value
+                    elif self.activation_function == "relu":
+                        if neurons.value > 0:
+                            initial_factor = 1
+                        else:
+                            initial_factor = 0
+                    else:
+                        self.derivative_function(neurons.value)
+                        
                     if neurons.factor_correction == None:
                         neurons.factor_correction = 0
                                             
@@ -578,12 +588,13 @@ if __name__ == "__main__":
 
     rede = mlp([3,8,8,2], bias = True)
     
-    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],1000)
+    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],10000)
     
     rede == [1,0,0]
     rede == [1,0,1]
     a = rede == [1,1,0]
     rede == [1,1,1]
+
 
     
     
