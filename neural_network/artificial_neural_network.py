@@ -12,7 +12,7 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
     Cria um objeto que pode ser tanto um input quanto um neurônio quanto um output, você não precissa indentificar o que ele é.
     """
     __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn", "activation_function", "derivative_function")
-    def __init__(self, learn = 0.01, activation_function = "sigmoid", derivative_function = None):
+    def __init__(self, learn = 0.05, activation_function = "sigmoid", derivative_function = None):
         self.value = None #Valor principal
         self.conections = None #Conecções
         self.returns = None #Conecções de retorno
@@ -154,6 +154,31 @@ class Network:
             print("There are",len(self.network[0]),"inputs,",len(self.network[-1]),"outputs and",len(self.network)-2,"layers")
         else:
             print("You haven't set the network yet")
+
+    def size(self):
+        from sys import getsizeof as sf
+        
+        total_size = 0
+        total_size += sf(self) + sf(self.value) + sf(self.one_hot) + sf(self.print_)
+        
+        for i in range(len(self.network)):
+            for j in range(len(self.network[i])):
+                total_size += sf(self.network[i][j]) + sf(self.network[i][j].weights) + sf(self.network[i][j].weights) \
+                              + sf(self.network[i][j].value) + sf(self.network[i][j].conections) + sf(self.network[i][j].returns) \
+                              + sf(self.network[i][j].factor_correction) + sf(self.network[i][j].learn) + sf(self.network[i][j].activation_function) \
+                              + sf(self.network[i][j].derivative_function)
+
+        if total_size < 1024 * 10:
+            l = "b"
+            size_final = total_size
+        elif total_size < (1024 ** 2)/10:
+            l = "kb"
+            size_final = total_size/1024
+        else:
+            l = "mb"
+            size_final = total_size/1024**2
+                
+        print(f"Neural network size is approximately: {size_final}{l}")
 
     def fill(self): #Preenche com o valor 1 os neuronios de viés
         """
@@ -451,6 +476,7 @@ class Network:
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 k += "Layer["+str(i)+"] neuron["+str(j)+"] = "+str(self.network[i][j].value)[:5]+" | w = "+str(self.network[i][j].weights)+" | c = "+str(self.network[i][j].factor_correction)[:7]+"\n"
+        self.size()
         return k
 
     def __invert__(self): # ~rede por exemplo
@@ -584,20 +610,17 @@ if __name__ == "__main__":
 ##    rede == [1,1,0]
 ##    rede == [1,1,1]
 
-    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = True)
+    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = False)
 
     rede = mlp([3,8,8,2], bias = True)
+    print(rede)
     
-    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],10000)
+    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]], 2000)
     
     rede == [1,0,0]
     rede == [1,0,1]
     a = rede == [1,1,0]
     rede == [1,1,1]
-
-
-    
-    
 
         
 
