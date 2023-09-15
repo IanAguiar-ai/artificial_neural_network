@@ -1,7 +1,7 @@
 """
 Classes/Objetos que servem para criar uma rede neural.
 É flexível na criação de redes.
-Existem duas classes, o Neuron e a Network. Uma Network é composta por Neuron's conectados.
+Existem duas classes, o Neuron e a Network. Uma Network é composta por Neuron's connectados.
 """
 
 #from neural_functions_c import activation_C
@@ -11,10 +11,10 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
     """
     Cria um objeto que pode ser tanto um input quanto um neurônio quanto um output, você não precissa indentificar o que ele é.
     """
-    __slots__ = ("value", "conections", "returns", "weights", "factor_correction", "learn", "activation_function", "derivative_function")
+    __slots__ = ("value", "connections", "returns", "weights", "factor_correction", "learn", "activation_function", "derivative_function")
     def __init__(self, learn = 0.05, activation_function = "sigmoid", derivative_function = None):
         self.value = None #Valor principal
-        self.conections = None #Conecções
+        self.connections = None #Conecções
         self.returns = None #Conecções de retorno
         self.weights = None #Pesos
         self.factor_correction = None #Fator de correção
@@ -22,22 +22,22 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         self.activation_function = activation_function.lower()
         self.derivative_function = derivative_function
         
-    def conect(self, conections):
+    def connect(self, connections):
         """
-        Conecta um objeto a outros, o unico tipo de objeto que não dever ser conectado é o output.
+        connecta um objeto a outros, o unico tipo de objeto que não dever ser connectado é o output.
         """
         
         from random import random
         
-        if type(conections) != list: #Se você não passar uma lista
-            conections = [conections]
+        if type(connections) != list: #Se você não passar uma lista
+            connections = [connections]
 
-        if self.conections == None:
-            self.conections = conections #Liga as conecções
+        if self.connections == None:
+            self.connections = connections #Liga as conecções
         else:
-            self.conections.extend(conections)
+            self.connections.extend(connections)
         
-        for nexts in self.conections: #Liga os retornos
+        for nexts in self.connections: #Liga os retornos
             
             if nexts.returns == None:
                 nexts.returns = []
@@ -52,15 +52,18 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         """
         Faz a distribuição dos pesos entre os objetos.
         """
-        if len(self.conections) == len(self.weights):
-            for k in range(len(self.conections)):
-                if self.conections[k].value == None:
-                    self.conections[k].value = 0 #Agora a conecção pode receber um valor
-            for i in range(len(self.conections)):
-                self.conections[i].value += self.weights[i] * self.value
+        if len(self.connections) == len(self.weights):
+            for k in range(len(self.connections)):
+                if self.connections[k].value == None:
+                    self.connections[k].value = 0 #Agora a conecção pode receber um valor
+            for i in range(len(self.connections)):
+                self.connections[i].value += self.weights[i] * self.value
 
-        else:   
-            print("Yours vectors conections and weights are diferent lens")
+        else:
+            from random import random
+            print(f"Yours vectors connections and weights are diferent lens, {len(self.connections)} and {len(self.weights)}")
+            self.weights = [random() - 0.5 for i in range(len(self.connections))]
+            pass
 
     #Exclusivo do Input:
     def input(self, value):
@@ -77,6 +80,8 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
                 self.value = 1/(1 + e ** (-1*self.value))
             except OverflowError:
                 pass
+            except TypeError:
+                self.value = 0
         elif self.activation_function == "relu":
             try:
                 self.value = max(0, self.value)
@@ -106,23 +111,23 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
                     if neurons.factor_correction == None:
                         neurons.factor_correction = 0
                                             
-                    for i in range(len(neurons.conections)):                        
-                        neurons.factor_correction += neurons.weights[i] * neurons.conections[i].factor_correction
+                    for i in range(len(neurons.connections)):                        
+                        neurons.factor_correction += neurons.weights[i] * neurons.connections[i].factor_correction
                     neurons.factor_correction *= initial_factor
 
     def change_weights(self): #Muda os pesos de acordo com o fator de correção
         """
         Troca os pesos de acordo com o fator de correção.
         """
-        for i in range(len(self.conections)):
-            self.weights[i] -= (self.value * self.conections[i].factor_correction) * self.learn #fator de aprendizado = 0.01
+        for i in range(len(self.connections)):
+            self.weights[i] -= (self.value * self.connections[i].factor_correction) * self.learn #fator de aprendizado = 0.01
 
     def prints(self):
         """
         Printa as propriedades do objeto.
         """
         print("Value " + str(self.value) + "\n" +
-            "Conections " + str(self.conections) + "\n" +
+            "connections " + str(self.connections) + "\n" +
             "Returns " + str(self.returns) + "\n" +
             "Weights " + str(self.weights) + "\n" +
             "Corretion " + str(self.factor_correction))
@@ -164,7 +169,7 @@ class Network:
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 total_size += sf(self.network[i][j]) + sf(self.network[i][j].weights) + sf(self.network[i][j].weights) \
-                              + sf(self.network[i][j].value) + sf(self.network[i][j].conections) + sf(self.network[i][j].returns) \
+                              + sf(self.network[i][j].value) + sf(self.network[i][j].connections) + sf(self.network[i][j].returns) \
                               + sf(self.network[i][j].factor_correction) + sf(self.network[i][j].learn) + sf(self.network[i][j].activation_function) \
                               + sf(self.network[i][j].derivative_function)
 
@@ -200,7 +205,7 @@ class Network:
             return
 
         for i in range(len(self.network[-1])): #Ultima camada
-            if self.network[-1][i].conections == None: #Se for um output
+            if self.network[-1][i].connections == None: #Se for um output
                 self.network[-1][i].factor_correction = self.network[-1][i].value - self.value[i]
 
         for i in range(len(self.network[-1])): #BackPropagation da ultima camada
@@ -258,7 +263,7 @@ class Network:
             return
 
         if len(inputs) != len(values):
-            print("Your list input have to be of size", len(values))
+            print("Your list input have to be of size", len(values), f"you have {len(inputs)} and {len(values)}")
             return
 
         cont = True
@@ -375,11 +380,11 @@ class Network:
             tmp_st = []
             for j in range(len(self.network[i])): #Para cada objeto do layes
                 tmp_st2 = []
-                for k in range(len(self.network[i][j].conections)): #Para cada conecção
+                for k in range(len(self.network[i][j].connections)): #Para cada conecção
                     #Ache o equivalente nos layers posteriores
                     for n in range(i, len(self.network)): #Para cada layer posterior
                         for m in range(len(self.network[n])): #Para cada objeto do layes
-                            if self.network[i][j].conections[k] ==  self.network[n][m]:
+                            if self.network[i][j].connections[k] ==  self.network[n][m]:
                                 tmp_st2.append((n,m))
                 tmp_st.append(tmp_st2)
             list_structure.append(tmp_st)    
@@ -452,7 +457,7 @@ class Network:
         for i in range(len(self.network)-1):
             for j in range(len(self.network[i])):
                 for k in range(len(import_n[1][i][j])):                  
-                    self.network[i][j].conect(self.network[import_n[1][i][j][k][0]][import_n[1][i][j][k][1]])
+                    self.network[i][j].connect(self.network[import_n[1][i][j][k][0]][import_n[1][i][j][k][1]])
 
         #Adiciona os pesos aos neuronios criados:
         for i in range(len(import_n[0])-1):
@@ -463,8 +468,8 @@ class Network:
 
         for i in range(len(self.network)-1):
             for j in range(len(self.network[i])):
-                if len(self.network[i][j].conections) != len(self.network[i][j].weights):
-                    self.network[i][j].weights = [random() for i in range(len(self.network[i][j].conections))]
+                if len(self.network[i][j].connections) != len(self.network[i][j].weights):
+                    self.network[i][j].weights = [random() for i in range(len(self.network[i][j].connections))]
 
         self.fill()
     
@@ -551,10 +556,46 @@ def mlp(design:list, bias:bool = True, one_hot = False, **args):
                 for k in range(0, design[i+1], 1):
                     temp.append(globals()[f"n{i + 1}_{k}"])
 
-            globals()[f"n{i}_{j}"].conect(temp)
+            globals()[f"n{i}_{j}"].connect(temp)
 
     return Network(network, one_hot = one_hot)
 
+def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amount":1}], one_hot = False, **args):
+    temporari = {}
+
+    temporari[0] = [[Neuron(**args) for i in range(input_image[0])] for j in range(input_image[1])]
+    
+    c = 1
+    for dsg in design:
+        if not "fc" in dsg.keys():
+            a = int((input_image[0] - dsg["lenth"])/dsg["stride"] + 1)
+            b = int((input_image[1] - dsg["lenth"])/dsg["stride"] + 1)
+            temporari[c] = [[Neuron(**args) for i in range(a)] for j in range(b)]
+            for i in range(len(temporari[c - 1])):
+                for j in range(len(temporari[c - 1][0])):
+                    
+                    temporari[c-1][i][j].connect(temporari[c][int(i/dsg["lenth"])][int(j/dsg["lenth"])])
+            print((i, j), "to", (int(i/dsg["lenth"]), int(j/dsg["lenth"])))
+        else:
+            temporari[c] = [Neuron(**args) for i in range(dsg["fc"])]
+            for i in range(len(temporari[c - 1])):
+                for j in range(len(temporari[c - 1][0])):
+                    for k in range(len(temporari[c])):
+                        temporari[c-1][i][j].connect(temporari[c][k])
+        c += 1
+
+    final_network = []
+    for k in temporari.keys():
+        temp = []
+        for l in temporari[k]:
+            try:
+                temp.extend(l)
+            except:
+                temp.append(l)
+        final_network.append(temp)
+
+    
+    return Network(final_network, one_hot = one_hot)
         
 #--------------------------------------------------------------------------------
 
@@ -583,17 +624,17 @@ if __name__ == "__main__":
 ##    o2 = Neuron()
 ##
 ##    #Conecções
-##    i1.conect([n12, n13])
-##    i2.conect([n12, n13])
-##    i3.conect([n12, n13])
+##    i1.connect([n12, n13])
+##    i2.connect([n12, n13])
+##    i3.connect([n12, n13])
 ##
-##    n11.conect([n22, n23])
-##    n12.conect([n22, n23])
-##    n13.conect([n22, n23])
+##    n11.connect([n22, n23])
+##    n12.connect([n22, n23])
+##    n13.connect([n22, n23])
 ##
-##    n21.conect([o1,o2])
-##    n22.conect([o1,o2])
-##    n23.conect([o1,o2])
+##    n21.connect([o1,o2])
+##    n22.connect([o1,o2])
+##    n23.connect([o1,o2])
 ##
 ##    rede = Network([[i1,i2,i3],
 ##                    [n11,n12,n13],
@@ -612,15 +653,53 @@ if __name__ == "__main__":
 
     #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = False)
 
-    rede = mlp([3,8,8,2], bias = True)
-    print(rede)
+    rede = mlp([16*16,8,8,10], bias = True, learn = 0.3)
+##    print(rede)
     
-    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]], 2000)
+##    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]], 2000)
+##    
+##    rede == [1,0,0]
+##    rede == [1,0,1]
+##    a = rede == [1,1,0]
+##    rede == [1,1,1]
+
+##    rede = cnn([16, 16], design = [{"stride":2, "lenth":3, "amount":1},
+##                                   {"fc":10}], learn = 0.3)
+
+    from PIL import Image
+    import os
+    pasta_imagens = 'C:/Users/Usuario/Desktop/digitos'
+    lista_de_imagens = []
+    for arquivo in os.listdir(pasta_imagens):
+        if arquivo.endswith(".png"):
+            caminho_completo = os.path.join(pasta_imagens, arquivo)
+            try:
+                imagem = Image.open(caminho_completo).convert("L")
+                dados_imagem = list(imagem.getdata())
+                lista_de_imagens.append(dados_imagem)
+            except Exception as e:
+                print(f"Erro ao processar {caminho_completo}: {str(e)}")
+
+    for i in range(len(lista_de_imagens)):
+        for j in range(len(lista_de_imagens[i])):
+            lista_de_imagens[i][j] /= 255
+
+    resp = [
+            *[[0,1,0,0,0,0,0,0,0,0]] * 3,
+            *[[0,0,1,0,0,0,0,0,0,0]] * 3,
+            *[[0,0,0,1,0,0,0,0,0,0]] * 3,
+            *[[0,0,0,0,1,0,0,0,0,0]] * 3,
+            *[[0,0,0,0,0,1,0,0,0,0]] * 3,
+            *[[0,0,0,0,0,0,1,0,0,0]] * 3,
+            *[[0,0,0,0,0,0,0,1,0,0]] * 3,
+            *[[0,0,0,0,0,0,0,0,1,0]] * 3,
+            *[[0,0,0,0,0,0,0,0,0,1]] * 3,]
+
+    rede.train(lista_de_imagens, resp, 100)
+
     
-    rede == [1,0,0]
-    rede == [1,0,1]
-    a = rede == [1,1,0]
-    rede == [1,1,1]
+
+
 
         
 
