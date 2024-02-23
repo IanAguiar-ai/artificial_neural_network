@@ -22,7 +22,7 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         self.activation_function = activation_function.lower()
         self.derivative_function = derivative_function
         
-    def connect(self, connections):
+    def connect(self, connections:list) -> None:
         """
         connecta um objeto a outros, o unico tipo de objeto que não dever ser connectado é o output.
         """
@@ -48,7 +48,7 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
             self.weights.append(random()*2-1)
 
     #Uma função que tem no ponto de entrada o Input ou um neuronio e no de saida um neuronio:
-    def distribute(self):
+    def distribute(self) -> None:
         """
         Faz a distribuição dos pesos entre os objetos.
         """
@@ -65,12 +65,8 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
             self.weights = [random() - 0.5 for i in range(len(self.connections))]
             pass
 
-    #Exclusivo do Input:
-    def input(self, value):
-        self.value
-
     #Função de ativação:
-    def activation(self): #Depois tem que colocar o ativation = False
+    def activation(self) -> None: #Depois tem que colocar o ativation = False
         """
         Sigmoide, serve para a ativação do objeto.
         """
@@ -91,7 +87,7 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
             self.value = self.activation_function(self.value)
         
 
-    def correction(self,value):
+    def correction(self, value:int ) -> None:
         """
         Descobre o fator de correção.
         """
@@ -115,14 +111,14 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
                         neurons.factor_correction += neurons.weights[i] * neurons.connections[i].factor_correction
                     neurons.factor_correction *= initial_factor
 
-    def change_weights(self): #Muda os pesos de acordo com o fator de correção
+    def change_weights(self) -> None: #Muda os pesos de acordo com o fator de correção
         """
         Troca os pesos de acordo com o fator de correção.
         """
         for i in range(len(self.connections)):
             self.weights[i] -= (self.value * self.connections[i].factor_correction) * self.learn #fator de aprendizado = 0.01
 
-    def prints(self):
+    def prints(self) -> None:
         """
         Printa as propriedades do objeto.
         """
@@ -138,7 +134,7 @@ class Network:
     Após definir uma lista de listas de neuronios, você pode criar uma rede, ela será responsável pelo controle geral das conecções.
     """
     __slots__ = ("network", "value", "print_", "one_hot")
-    def __init__(self, network = None, value = None, one_hot = False):
+    def __init__(self, network:list = None, value:float = None, one_hot:bool = False):
         #network é um array onde cada vetor é uma camada            
         if network != None and type(network) == list:
             self.network = network
@@ -151,7 +147,7 @@ class Network:
         self.value = value
         self.one_hot = one_hot
 
-    def properties(self):
+    def properties(self) -> None:
         """
         Diz algumas propriedades da rede.
         """
@@ -160,7 +156,7 @@ class Network:
         else:
             print("You haven't set the network yet")
 
-    def size(self):
+    def size(self) -> None:
         from sys import getsizeof as sf
         
         total_size = 0
@@ -185,7 +181,7 @@ class Network:
                 
         print(f"Neural network size is approximately: {size_final}{l}")
 
-    def fill(self): #Preenche com o valor 1 os neuronios de viés
+    def fill(self) -> None: #Preenche com o valor 1 os neuronios de viés
         """
         Completa os inputs ou neuronios de viés com 1.
         """
@@ -194,7 +190,7 @@ class Network:
                 if self.network[i][j].value == None and self.network[i][j].returns == None:
                     self.network[i][j].value = 1 #Se torna um neuronio de viés
     
-    def run(self):
+    def run(self) -> None:
         """
         Faz um caminho de ida e volta na rede, corrigindo seus pesos com o BackPropagation.
         """
@@ -219,7 +215,7 @@ class Network:
             for j in range(len(self.network[i])):
                 self.network[i][j].change_weights()         
 
-    def simple_run(self):
+    def simple_run(self) -> None:
         """
         Faz um caminho apenas de ida na rede.
         """
@@ -231,7 +227,7 @@ class Network:
                 if i != max_: #No output ele não faz a distribuição
                     self.network[i][j].distribute()
 
-    def exist_nan(self):
+    def exist_nan(self) -> bool:
         """
         Se por algum motivo existe um valor infinito ou um 'not a number' na rede ele retorna True.
         """
@@ -254,7 +250,7 @@ class Network:
                     pass
         return False
 
-    def train(self, inputs, values, times): #Treina a rede
+    def train(self, inputs:list, values:list, times:int) -> None: #Treina a rede
         """
         Treina a rede.
         """
@@ -291,7 +287,7 @@ class Network:
                 print("Truncation or numeric representation error\n(if this happens often the problem may be in the network design)")
                 return self.train(inputs, values, int(times*.25))
 
-    def answer(self, inputs):
+    def answer(self, inputs:list) -> None:
         """
         Diz quais são os outputs.
         """
@@ -335,7 +331,7 @@ class Network:
                     print("y(" + str(i) + ") = " + str(i))
                 print("")
         
-    def view(self):
+    def view(self) -> None:
         """
         Ajuda a visualizar a rede.
         """
@@ -343,7 +339,7 @@ class Network:
             for j in range(len(self.network[i])):
                 print("Layer["+str(i)+"] neuron["+str(j)+"] = "+str(self.network[i][j].value)+" | w = "+" | c = "+str(self.network[i][j].factor_correction)+str(self.network[i][j].weights))
 
-    def export_(self, name = "neural_network"): #Salva os pesos de neuronios
+    def export_(self, name:str = "neural_network") -> None: #Salva os pesos de neuronios
         """
         Exporta os pesos da rede.
         """
@@ -365,7 +361,7 @@ class Network:
             
         print("Save json with name",name)
 
-    def export_design(self, name = "design_neural_network"): #Salva todo design da rede
+    def export_design(self, name:str = "design_neural_network") -> None: #Salva todo design da rede
         """
         Exporta tanto a estrutura das redes quanto seus pesos.
         """
@@ -404,7 +400,7 @@ class Network:
             
         print("Save json with name",name)
 
-    def import_(self, name = "neural_network"): #Importa os pesos dos neuronios
+    def import_(self, name:str = "neural_network") -> None: #Importa os pesos dos neuronios
         """
         Importa pesos externos para sua rede.
         """
@@ -431,7 +427,7 @@ class Network:
 
         self.fill()
 
-    def import_design(self, name = "design_neural_network"): #Importa o design dos neuronios
+    def import_design(self, name:str = "design_neural_network") -> None: #Importa o design dos neuronios
         """
         Importa a estrutura completa da rede interpretando pesos e conecções.
         """
@@ -473,7 +469,7 @@ class Network:
 
         self.fill()
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Método especial.
         """
@@ -484,20 +480,20 @@ class Network:
         self.size()
         return k
 
-    def __invert__(self): # ~rede por exemplo
+    def __invert__(self) -> None: # ~rede por exemplo
         """
         Método especial que roda a rede uma vez. ~rede por exemplo.
         """
         self.run()
 
-    def __rshift__(self, times): # rede >> 2 por exemplo
+    def __rshift__(self, times:int) -> None: # rede >> 2 por exemplo
         """
         Método especial que roda a rede um determinado numero de vezes. rede >> 2 por exemplo.
         """
         for i in range(times):
             self.run()
 
-    def __eq__(self, inputs): #rede == [0,0] por exemplo
+    def __eq__(self, inputs:list) -> list: #rede == [0,0] por exemplo
         """
         Método especial que aceita entradas. rede == [0,0] por exemplo.
         """
@@ -530,14 +526,17 @@ class Network:
 
         return resp
 
-    def __getitem__(self, index): #rede[0] por exemplo
+    def __getitem__(self, index:int) -> list: #rede[0] por exemplo
         """
         Método especial que retorna um layer. rede[0] por exemplo.
         """
         return self.network[index]
 
 
-def mlp(design:list, bias:bool = True, one_hot = False, **args):
+def mlp(design:list, bias:bool = True, one_hot:bool = False, **args) -> Network:
+    """
+    Cria uma rede multi layer perceptron
+    """
     network = []
     for i in range(len(design)):
         temp_network = []
@@ -560,11 +559,10 @@ def mlp(design:list, bias:bool = True, one_hot = False, **args):
 
     return Network(network, one_hot = one_hot)
 
-def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amount":1}], one_hot = False, **args):
+def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amount":1}], one_hot:bool = False, **args) -> Network:
     temporari = {}
-
     temporari[0] = [[Neuron(**args) for i in range(input_image[0])] for j in range(input_image[1])]
-    
+
     c = 1
     for dsg in design:
         if not "fc" in dsg.keys():
@@ -594,113 +592,4 @@ def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amo
                 temp.append(l)
         final_network.append(temp)
 
-    
     return Network(final_network, one_hot = one_hot)
-        
-#--------------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    from time import time
-    
-##    #Inputs
-##    i1 = Neuron()
-##    i1.value = 1
-##
-##    i2 = Neuron()
-##    i2.value = 1
-##
-##    i3 = Neuron()
-##    i3.value = 1
-##
-##    n11 = Neuron()
-##    n12 = Neuron()
-##    n13 = Neuron()    
-##
-##    n21 = Neuron()
-##    n22 = Neuron()
-##    n23 = Neuron()
-##
-##    o1 = Neuron()
-##    o2 = Neuron()
-##
-##    #Conecções
-##    i1.connect([n12, n13])
-##    i2.connect([n12, n13])
-##    i3.connect([n12, n13])
-##
-##    n11.connect([n22, n23])
-##    n12.connect([n22, n23])
-##    n13.connect([n22, n23])
-##
-##    n21.connect([o1,o2])
-##    n22.connect([o1,o2])
-##    n23.connect([o1,o2])
-##
-##    rede = Network([[i1,i2,i3],
-##                    [n11,n12,n13],
-##                    [n21,n22,n23],
-##                    [o1,o2]])
-##
-##    t1 = time()
-##    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]],40000)
-##    t2 = time()
-##    print(t2-t1,"\n")      
-##
-##    rede == [1,0,0]
-##    rede == [1,0,1]
-##    rede == [1,1,0]
-##    rede == [1,1,1]
-
-    #rede = mlp([3,8,8,2], bias = True, activation_function = "sigmoid", learn = 0.1, one_hot = False)
-
-    rede = mlp([16*16,8,8,10], bias = True, learn = 0.3)
-##    print(rede)
-    
-##    rede.train([[1,0,0],[1,0,1],[1,1,0],[1,1,1]],[[1,0],[0,1],[1,1],[0,0]], 2000)
-##    
-##    rede == [1,0,0]
-##    rede == [1,0,1]
-##    a = rede == [1,1,0]
-##    rede == [1,1,1]
-
-##    rede = cnn([16, 16], design = [{"stride":2, "lenth":3, "amount":1},
-##                                   {"fc":10}], learn = 0.3)
-
-    from PIL import Image
-    import os
-    pasta_imagens = 'C:/Users/Usuario/Desktop/digitos'
-    lista_de_imagens = []
-    for arquivo in os.listdir(pasta_imagens):
-        if arquivo.endswith(".png"):
-            caminho_completo = os.path.join(pasta_imagens, arquivo)
-            try:
-                imagem = Image.open(caminho_completo).convert("L")
-                dados_imagem = list(imagem.getdata())
-                lista_de_imagens.append(dados_imagem)
-            except Exception as e:
-                print(f"Erro ao processar {caminho_completo}: {str(e)}")
-
-    for i in range(len(lista_de_imagens)):
-        for j in range(len(lista_de_imagens[i])):
-            lista_de_imagens[i][j] /= 255
-
-    resp = [
-            *[[0,1,0,0,0,0,0,0,0,0]] * 3,
-            *[[0,0,1,0,0,0,0,0,0,0]] * 3,
-            *[[0,0,0,1,0,0,0,0,0,0]] * 3,
-            *[[0,0,0,0,1,0,0,0,0,0]] * 3,
-            *[[0,0,0,0,0,1,0,0,0,0]] * 3,
-            *[[0,0,0,0,0,0,1,0,0,0]] * 3,
-            *[[0,0,0,0,0,0,0,1,0,0]] * 3,
-            *[[0,0,0,0,0,0,0,0,1,0]] * 3,
-            *[[0,0,0,0,0,0,0,0,0,1]] * 3,]
-
-    rede.train(lista_de_imagens, resp, 100)
-
-    
-
-
-
-        
-
-        
