@@ -13,14 +13,14 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
     """
     __slots__ = ("value", "connections", "returns", "weights", "factor_correction", "learn", "activation_function", "derivative_function")
     def __init__(self, learn = 0.05, activation_function = "sigmoid", derivative_function = None):
-        self.value = None #Valor principal
-        self.connections = None #Conecções
-        self.returns = None #Conecções de retorno
-        self.weights = None #Pesos
-        self.factor_correction = None #Fator de correção
-        self.learn = learn
-        self.activation_function = activation_function.lower()
-        self.derivative_function = derivative_function
+        self.value:float = None #Valor principal
+        self.connections:list = None #Conecções
+        self.returns:list = None #Conecções de retorno
+        self.weights:list = None #Pesos
+        self.factor_correction:float = None #Fator de correção
+        self.learn:float = learn
+        self.activation_function:"function or str" = activation_function.lower()
+        self.derivative_function:"function" = derivative_function
         
     def connect(self, connections:list) -> None:
         """
@@ -30,21 +30,20 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         from random import random
         
         if type(connections) != list: #Se você não passar uma lista
-            connections = [connections]
+            connections:list = [connections]
 
         if self.connections == None:
-            self.connections = connections #Liga as conecções
+            self.connections:list = connections #Liga as conecções
         else:
             self.connections.extend(connections)
         
         for nexts in self.connections: #Liga os retornos
-            
             if nexts.returns == None:
-                nexts.returns = []
+                nexts.returns:list = []
             nexts.returns.append(self)
 
             if self.weights == None:
-                self.weights = []
+                self.weights:list = []
             self.weights.append(random()*2-1)
 
     #Uma função que tem no ponto de entrada o Input ou um neuronio e no de saida um neuronio:
@@ -62,7 +61,7 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         else:
             from random import random
             print(f"Yours vectors connections and weights are diferent lens, {len(self.connections)} and {len(self.weights)}")
-            self.weights = [random() - 0.5 for i in range(len(self.connections))]
+            self.weights:list = [random() - 0.5 for i in range(len(self.connections))]
             pass
 
     #Função de ativação:
@@ -72,15 +71,15 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
         """
         if self.activation_function == "sigmoid":
             try:
-                e = float(2.7182)
-                self.value = 1/(1 + e ** (-1*self.value))
+                e:float = float(2.7182)
+                self.value:float = 1/(1 + e ** (-1*self.value))
             except OverflowError:
                 pass
             except TypeError:
-                self.value = 0
+                self.value:float = 0
         elif self.activation_function == "relu":
             try:
-                self.value = max(0, self.value)
+                self.value:float = max(0, self.value)
             except OverflowError:
                 pass
         else:
@@ -95,17 +94,17 @@ class Neuron: #Pode ser tanto o input layer quanto o proprio neurônio, a funç�
             for neurons in self.returns: #Output
                 if neurons.returns != None: #Se ele tiver retornos e conecções (conecções ele já tem obrigatoriamente)
                     if self.activation_function == "sigmoid":
-                        initial_factor = (1-neurons.value)*neurons.value
+                        initial_factor:float = (1-neurons.value)*neurons.value
                     elif self.activation_function == "relu":
                         if neurons.value > 0:
-                            initial_factor = 1
+                            initial_factor:int = 1
                         else:
-                            initial_factor = 0
+                            initial_factor:int = 0
                     else:
                         self.derivative_function(neurons.value)
                         
                     if neurons.factor_correction == None:
-                        neurons.factor_correction = 0
+                        neurons.factor_correction:int = 0
                                             
                     for i in range(len(neurons.connections)):                        
                         neurons.factor_correction += neurons.weights[i] * neurons.connections[i].factor_correction
@@ -137,15 +136,15 @@ class Network:
     def __init__(self, network:list = None, value:float = None, one_hot:bool = False):
         #network é um array onde cada vetor é uma camada            
         if network != None and type(network) == list:
-            self.network = network
+            self.network:list = network
             self.fill()       
         else:
             self.network = None
             print("You need pass a list of layers")
             
-        self.print_ = True
-        self.value = value
-        self.one_hot = one_hot
+        self.print_:bool = True
+        self.value:float = value
+        self.one_hot:bool = one_hot
 
     def properties(self) -> None:
         """
@@ -159,7 +158,7 @@ class Network:
     def size(self) -> None:
         from sys import getsizeof as sf
         
-        total_size = 0
+        total_size:int = 0
         total_size += sf(self) + sf(self.value) + sf(self.one_hot) + sf(self.print_)
         
         for i in range(len(self.network)):
@@ -170,14 +169,14 @@ class Network:
                               + sf(self.network[i][j].derivative_function)
 
         if total_size < 1024 * 10:
-            l = "b"
-            size_final = total_size
+            l:str = "b"
+            size_final:int = total_size
         elif total_size < (1024 ** 2)/10:
-            l = "kb"
-            size_final = total_size/1024
+            l:str = "kb"
+            size_final:int = total_size/1024
         else:
-            l = "mb"
-            size_final = total_size/1024**2
+            l:str = "mb"
+            size_final:int = total_size/1024**2
                 
         print(f"Neural network size is approximately: {size_final}{l}")
 
@@ -188,7 +187,7 @@ class Network:
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 if self.network[i][j].value == None and self.network[i][j].returns == None:
-                    self.network[i][j].value = 1 #Se torna um neuronio de viés
+                    self.network[i][j].value:float = 1 #Se torna um neuronio de viés
     
     def run(self) -> None:
         """
@@ -202,7 +201,7 @@ class Network:
 
         for i in range(len(self.network[-1])): #Ultima camada
             if self.network[-1][i].connections == None: #Se for um output
-                self.network[-1][i].factor_correction = self.network[-1][i].value - self.value[i]
+                self.network[-1][i].factor_correction:float = self.network[-1][i].value - self.value[i]
 
         for i in range(len(self.network[-1])): #BackPropagation da ultima camada
             self.network[-1][i].correction(self.value[i])
@@ -219,7 +218,7 @@ class Network:
         """
         Faz um caminho apenas de ida na rede.
         """
-        max_ = len(self.network) - 1 #Onde o output fica
+        max_:int = len(self.network) - 1 #Onde o output fica
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 if i != 0 and j != 0 or i == max_: #No imput ele não precisa fazer a ativação nem nos viéses j = 0 e i > 0
@@ -235,16 +234,16 @@ class Network:
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 if str(self.network[i][j].value) == "nan" or str(self.network[i][j].value).find("inf") > -1:
-                    self.network[i][j].value = random()*2 - 1
+                    self.network[i][j].value:float = random()*2 - 1
                     return True
                 if str(self.network[i][j].factor_correction) == "nan" or str(self.network[i][j].factor_correction).find("inf") > -1:
-                    self.network[i][j].factor_correction = random()*2 - 1
+                    self.network[i][j].factor_correction:float = random()*2 - 1
                     return True
 
                 try:
                     for k in range(len(self.network[i][j].weights)):
                         if str(self.network[i][j].weights[k]) == "nan" or str(self.network[i][j].weights[k]).find("inf") > -1:
-                            self.network[i][j].weights[k] = random()*2 - 1
+                            self.network[i][j].weights[k]:float = random()*2 - 1
                             return True
                 except TypeError:
                     pass
@@ -262,7 +261,7 @@ class Network:
             print("Your list input have to be of size", len(values), f"you have {len(inputs)} and {len(values)}")
             return
 
-        cont = True
+        cont:bool = True
         for t in range(times):
             try:
                 if t % int(times/20) == 0:
@@ -274,18 +273,18 @@ class Network:
                     for j in range(len(self.network[0])):
                         self.network[0][j].value = inputs[i][j]
                             
-                    self.value = values[i]
+                    self.value:float = values[i]
                     self.run()
 
             if not self.exist_nan():
-                backup = Network(self.network)
+                backup:Network = Network(self.network)
             else:
                 try:
-                    self = backup
+                    self:Network = backup
                 except:
                     pass
                 print("Truncation or numeric representation error\n(if this happens often the problem may be in the network design)")
-                return self.train(inputs, values, int(times*.25))
+                return self.train(inputs, values, int(times*.25)) #Recursivo
 
     def answer(self, inputs:list) -> None:
         """
@@ -300,7 +299,7 @@ class Network:
             return
         
         for j in range(len(self.network[0])): #Não considera valores fixos
-            self.network[0][j].value = inputs[j]
+            self.network[0][j].value:float = inputs[j]
         self.simple_run()
 
         if type(self.one_hot) == bool:
@@ -312,10 +311,10 @@ class Network:
 
             if self.print_ and self.one_hot:
                 print(inputs)
-                resps = []
+                resps:list = []
                 for i in range(len(self.network[-1])):
                     resps.append(self.network[-1][i].value)
-                resps_new = [0 for i in range(len(resps))]
+                resps_new:list = [0 for i in range(len(resps))]
                 resps_new[resps.index(max(resps))] = 1
                 for i in resps_new:
                     print("y(" + str(i) + ") = " + str(i))
@@ -323,10 +322,10 @@ class Network:
         else:
             if self.print_:
                 print(inputs)
-                resps = [0 for i in range(len(self.network[-1]))]
+                resps:list = [0 for i in range(len(self.network[-1]))]
                 for i in range(len(self.network[-1])):
                     if self.network[-1][i].value >= self.one_hot:
-                        resps[i] = 1
+                        resps[i]:float = 1
                 for i in resps:
                     print("y(" + str(i) + ") = " + str(i))
                 print("")
@@ -347,10 +346,10 @@ class Network:
             name += ".json"
         
         import json
-        list_neurons = []
+        list_neurons:list = []
         
         for i in range(len(self.network)):
-            temp_list = []
+            temp_list:list = []
             for j in range(len(self.network[i])):
                 temp_list.append(self.network[i][j].weights)
             list_neurons.append(temp_list)
@@ -370,12 +369,12 @@ class Network:
         
         import json
 
-        list_structure = []
+        list_structure:list = []
         #Pega a estrutura:
         for i in range(len(self.network) - 1): #Para cada layer
-            tmp_st = []
+            tmp_st:list = []
             for j in range(len(self.network[i])): #Para cada objeto do layes
-                tmp_st2 = []
+                tmp_st2:list = []
                 for k in range(len(self.network[i][j].connections)): #Para cada conecção
                     #Ache o equivalente nos layers posteriores
                     for n in range(i, len(self.network)): #Para cada layer posterior
@@ -386,15 +385,15 @@ class Network:
             list_structure.append(tmp_st)    
 
         #Pega a memória:
-        list_neurons = []
+        list_neurons:list = []
         for i in range(len(self.network)):
-            temp_list = []
+            temp_list:list = []
             for j in range(len(self.network[i])):
                 temp_list.append(self.network[i][j].weights)
             list_neurons.append(temp_list)
             
                 
-        arq = json.dumps((list_neurons,list_structure))
+        arq:dict = json.dumps((list_neurons,list_structure))
         with open(name, "w") as file:
             file.write(arq)
             
@@ -410,7 +409,7 @@ class Network:
         import json
 
         with open(name, "r") as openfile:
-            import_n = json.load(openfile)
+            import_n:dict = json.load(openfile)
 
         print(import_n)
         try:
@@ -437,17 +436,17 @@ class Network:
         import json
 
         with open(name, "r") as openfile:
-            import_n = json.load(openfile)
+            import_n:dict = json.load(openfile)
 
         #Cria os neuronios:
-        temp_nrl = []
+        temp_nrl:list = []
         for i in range(len(import_n[0])):
-            temp_nrl2 = []
+            temp_nrl2:list = []
             for j in range(len(import_n[0][i])):
                 temp_nrl2.append(Neuron())
             temp_nrl.append(temp_nrl2)
 
-        self.network = temp_nrl
+        self.network:list = temp_nrl
 
         #Cria as conecções:
         for i in range(len(self.network)-1):
@@ -473,7 +472,7 @@ class Network:
         """
         Método especial.
         """
-        k = ""
+        k:str = ""
         for i in range(len(self.network)):
             for j in range(len(self.network[i])):
                 k += "Layer["+str(i)+"] neuron["+str(j)+"] = "+str(self.network[i][j].value)[:5]+" | w = "+str(self.network[i][j].weights)+" | c = "+str(self.network[i][j].factor_correction)[:7]+"\n"
@@ -499,7 +498,7 @@ class Network:
         """
 
         self.answer(inputs)
-        resp = []
+        resp:list = []
 ##        for i in range(10000):
 ##            try:
 ##                resp.append(self.network[-1][i].value)
@@ -514,15 +513,15 @@ class Network:
             if self.print_ and self.one_hot:
                 for i in range(len(self.network[-1])):
                     resp.append(self.network[-1][i].value)
-                resps_new = [0 for i in range(len(resp))]
+                resps_new:list = [0 for i in range(len(resp))]
                 resps_new[resp.index(max(resp))] = 1
-                resp = resps_new
+                resp:list = resps_new
         else:
             if self.print_:
                 resp = [0 for i in range(len(self.network[-1]))]
                 for i in range(len(self.network[-1])):
                     if self.network[-1][i].value >= self.one_hot:
-                        resp[i] = 1
+                        resp[i]:float = 1
 
         return resp
 
@@ -537,37 +536,37 @@ def mlp(design:list, bias:bool = True, one_hot:bool = False, **args) -> Network:
     """
     Cria uma rede multi layer perceptron
     """
-    network = []
+    network:list = []
     for i in range(len(design)):
-        temp_network = []
+        temp_network:list = []
         for j in range(design[i]):
-            globals()[f"n{i}_{j}"] = Neuron(**args)
-            temp_network.append(globals()[f"n{i}_{j}"])
+            globals()[f"_n_{i}_{j}"] = Neuron(**args)
+            temp_network.append(globals()[f"_n_{i}_{j}"])
         network.append(temp_network)
 
     for i in range(len(design) - 1):
         for j in range(design[i]):
-            temp = []
+            temp:list = []
             if i+2 != len(design):
                 for k in range(bias, design[i+1], 1):
-                    temp.append(globals()[f"n{i + 1}_{k}"])
+                    temp.append(globals()[f"_n_{i + 1}_{k}"])
             else:
                 for k in range(0, design[i+1], 1):
-                    temp.append(globals()[f"n{i + 1}_{k}"])
+                    temp.append(globals()[f"_n_{i + 1}_{k}"])
 
-            globals()[f"n{i}_{j}"].connect(temp)
+            globals()[f"_n_{i}_{j}"].connect(temp)
 
     return Network(network, one_hot = one_hot)
 
 def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amount":1}], one_hot:bool = False, **args) -> Network:
-    temporari = {}
-    temporari[0] = [[Neuron(**args) for i in range(input_image[0])] for j in range(input_image[1])]
+    temporari:dict = {}
+    temporari[0]:list = [[Neuron(**args) for i in range(input_image[0])] for j in range(input_image[1])]
 
-    c = 1
+    c:int = 1
     for dsg in design:
         if not "fc" in dsg.keys():
-            a = int((input_image[0] - dsg["lenth"])/dsg["stride"] + 1)
-            b = int((input_image[1] - dsg["lenth"])/dsg["stride"] + 1)
+            a:int = int((input_image[0] - dsg["lenth"])/dsg["stride"] + 1)
+            b:int = int((input_image[1] - dsg["lenth"])/dsg["stride"] + 1)
             temporari[c] = [[Neuron(**args) for i in range(a)] for j in range(b)]
             for i in range(len(temporari[c - 1])):
                 for j in range(len(temporari[c - 1][0])):
@@ -575,16 +574,16 @@ def cnn(input_image:list = [16, 16], design:list = [{"stride":2, "lenth":3, "amo
                     temporari[c-1][i][j].connect(temporari[c][int(i/dsg["lenth"])][int(j/dsg["lenth"])])
             print((i, j), "to", (int(i/dsg["lenth"]), int(j/dsg["lenth"])))
         else:
-            temporari[c] = [Neuron(**args) for i in range(dsg["fc"])]
+            temporari[c]:list = [Neuron(**args) for i in range(dsg["fc"])]
             for i in range(len(temporari[c - 1])):
                 for j in range(len(temporari[c - 1][0])):
                     for k in range(len(temporari[c])):
                         temporari[c-1][i][j].connect(temporari[c][k])
         c += 1
 
-    final_network = []
+    final_network:list = []
     for k in temporari.keys():
-        temp = []
+        temp:list = []
         for l in temporari[k]:
             try:
                 temp.extend(l)

@@ -1,14 +1,11 @@
 Metadata-Version: 2.1
 Name: neuralnetwork
-Version: 1.0.0
+Version: 1.0.1
 Summary: Artificial Neural Network
 Home-page: UNKNOWN
 Author: Ian dos Anjos
 Author-email: <iannaianjos@gmail.com>
 License: UNKNOWN
-Description: 
-        # artificial_neural_network
-        
 Keywords: python,artificial_neural_network,neural_network,mlp,multilayer_perceptron
 Platform: UNKNOWN
 Classifier: Development Status :: 1 - Planning
@@ -18,3 +15,14 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
+
+
+# artificial_neural_network
+
+## Download
+
+```
+pip install git+https://github.com/IanAguiar-ai/artificial_neural_network
+```
+
+
